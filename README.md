@@ -12,7 +12,7 @@ The plugin will start automatically, and OPs will automatically have the permiss
 ## Hooks
 Here's a list of the plugins that AdminGUI (attempts) to hook into. The major dependencies are marked with an asterisk (*).
 
-Plugins:
+**Plugins**:
 - Vault*
 - Essentials* (Chat, Spawn, etc.)
 - MaxBans
