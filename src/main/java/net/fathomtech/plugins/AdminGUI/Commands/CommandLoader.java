@@ -3,6 +3,7 @@ package net.fathomtech.plugins.AdminGUI.Commands;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -10,6 +11,7 @@ import com.Ben12345rocks.AdvancedCore.CommandAPI.CommandHandler;
 
 import net.fathomtech.plugins.AdminGUI.Main;
 import net.fathomtech.plugins.AdminGUI.Config.Config;
+import net.fathomtech.plugins.AdminGUI.GUI.AdminGUI;
 
 public class CommandLoader {
     /**
@@ -129,19 +131,27 @@ public class CommandLoader {
                                 "AdminGUI.Open|" + ownerPerm + "|" + adminPerm + "|" + seniorModPerm + "|" + modPerm + "|" + juniorModPerm + "|" + helperPerm,
                                 "Open AdminGUI") {
                                     
-                                    @Override
-                                    public void execute(CommandSender sender, String[] args) {
-                                        
-                                        // Check if the sender is actually a Player
-                                        if(sender instanceof Player) {
-                                            Player player = (Player) sender;
-                                            
-                                            
-                                        }
-                                        
-                                    }
-                                    
-                                });
+            @Override
+            public void execute(CommandSender sender, String[] args) {
+                
+                // Check if the sender is actually a Player
+                if(sender instanceof Player) {
+                    Player player = (Player) sender;
+                    
+                    if(args.length == 0) {
+                        AdminGUI.getInstance().viewGUI(player);
+                        return;
+                    } else if(args.length >= 1) {
+                        AdminGUI.getInstance().openGUI(player, Bukkit.getServer().getPlayer(args[0]));
+                        return;
+                    }
+                }
+                
+            }
+            
+        });
+        
+        
     }
     
     
