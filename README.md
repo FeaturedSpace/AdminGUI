@@ -28,5 +28,9 @@ Compiling this plugin is as easy as compiling any other Java project. Just downl
 ## Contribution and Contributors
 We welcome any contribution to the project, and would love it if you have any ideas for the plugin that you'd help us out with. If you want to implement any ideas, start an Issue or a Pull Request!
 
+**Contributors**:
+- FeaturedSpace
+- 1337gamerman
+
 ## License
 This project is Licensed under the Apache 2.0 License. All rights are reserved.
