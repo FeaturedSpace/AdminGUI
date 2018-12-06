@@ -1,24 +1,29 @@
 package net.fathomtech.plugins.AdminGUI.GUI;
 
-import java.util.ArrayList;
-
+import org.bukkit.DyeColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.MetadataValue;
 
 import com.Ben12345rocks.AdvancedCore.AdvancedCoreHook;
 import com.Ben12345rocks.AdvancedCore.Util.Inventory.BInventory;
 import com.Ben12345rocks.AdvancedCore.Util.Inventory.BInventory.ClickEvent;
 import com.Ben12345rocks.AdvancedCore.Util.Inventory.BInventoryButton;
 import com.Ben12345rocks.AdvancedCore.Util.Item.ItemBuilder;
-import com.Ben12345rocks.AdvancedCore.Util.ValueRequest.ValueRequest;
-import com.Ben12345rocks.AdvancedCore.Util.ValueRequest.Listeners.StringListener;
 
 import net.fathomtech.plugins.AdminGUI.Main;
 import net.fathomtech.plugins.AdminGUI.GUI.UserGUI;
+import net.fathomtech.plugins.AdminGUI.GUI.Submenus.ChatGUI;
+import net.fathomtech.plugins.AdminGUI.GUI.Submenus.GameModeGUI;
+import net.fathomtech.plugins.AdminGUI.GUI.Submenus.PlayerGUI;
 import net.fathomtech.plugins.AdminGUI.GUI.Submenus.PunishGUI;
 import net.fathomtech.plugins.AdminGUI.GUI.Submenus.RankGUI;
+import net.fathomtech.plugins.AdminGUI.GUI.Submenus.ServerGUI;
+import net.fathomtech.plugins.AdminGUI.GUI.Submenus.StaffGUI;
+import net.fathomtech.plugins.AdminGUI.GUI.Submenus.VanishGUI;
+import net.fathomtech.plugins.AdminGUI.GUI.Submenus.WorldGUI;
 
 public class AdminGUI implements GUI {
 
@@ -41,7 +46,7 @@ public class AdminGUI implements GUI {
         return instance;
     }
 
-    private ArrayList<BInventoryButton> pluginGUIs;
+    // private ArrayList<BInventoryButton> pluginGUIs; // We don't need this because all of these are hardcoded.
 
     private AdminGUI() {
 
@@ -91,6 +96,27 @@ public class AdminGUI implements GUI {
             
         });
         
+        /**
+         * Chat Button
+         */
+        ItemBuilder chatButton = new ItemBuilder(Material.SPONGE, 1);
+        punishButton.setName("&6&lChat");
+        chatButton.addLoreLine("&7Mute players and the chat.");
+        
+        inv.addButton(inv.getNextSlot(), new BInventoryButton(chatButton) {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                if(event.getClick().equals(ClickType.MIDDLE)) {
+                    // View the inventory
+                    ChatGUI.getInstance().viewGUI(player);
+                    return;
+                }
+            }
+            
+            
+        });
+        
         
         /**
          * Ranks Button
@@ -133,13 +159,159 @@ public class AdminGUI implements GUI {
             public void onClick(ClickEvent event) {
                 if(event.getClick().equals(ClickType.MIDDLE)) {
                     // View the Player GUI
-                    PlayerGUI.viewGUI(player);
+                    PlayerGUI.getInstance().viewGUI(player);
                 } else {
-                    UserGUI.selectUser(player, PlayerGUI.getInstance());
+                    UserGUI.getInstance().selectUser(player, PlayerGUI.getInstance());
                 }
             }
             
         });
+        
+        /**
+         * Staff
+         */
+        ItemBuilder staffButton = new ItemBuilder(Material.GOLD_BLOCK, 1);
+        staffButton.setName("&e&lStaff");
+        staffButton.addLoreLine("&7See online staff, toggle");
+        staffButton.addLoreLine("&7StaffMode, Vanish, etc.");
+        
+        inv.addButton(inv.getNextSlot(), new BInventoryButton(staffButton) {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                if(event.getClick().equals(ClickType.MIDDLE)) {
+                    // View the inventory
+                    StaffGUI.getInstance().viewGUI(player);
+                    return;
+                } else {
+                    // Open the UserGUI
+                    UserGUI.getInstance().selectUser(player, StaffGUI.getInstance());
+                }
+            }
+            
+        });
+        
+        
+        /**
+         * World
+         */
+        ItemBuilder worldButton = new ItemBuilder(Material.PLAYER_HEAD, 1);
+        worldButton.setSkullOwner("Dipicrylamine");
+        worldButton.setName("&b&lWorld");
+        worldButton.addLoreLine("&7WorldEdit tools,");
+        worldButton.addLoreLine("&7CoreProtect CommandBuilder,");
+        worldButton.addLoreLine("&7and Inventory Restoration.");
+        
+        inv.addButton(inv.getNextSlot(), new BInventoryButton(worldButton) {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                WorldGUI.getInstance().viewGUI(player);
+                return;
+            }
+            
+        });
+        
+        /**
+         * Gamemode
+         */
+        ItemBuilder gamemodeButton = new ItemBuilder(Material.GLASS_PANE, 1);
+        if(player.getGameMode().equals(GameMode.SURVIVAL)) {
+            gamemodeButton.setDyeColor(DyeColor.RED);
+            gamemodeButton.setName("&4&lGameMode");
+            gamemodeButton.addLoreLine("&7Click to Toggle between");
+            gamemodeButton.addLoreLine("&7&4Survival &7and &3Creative&7.");
+            gamemodeButton.addLoreLine("&7Middle click for options.");
+        } else {
+            gamemodeButton.setDyeColor(DyeColor.BLUE);
+            gamemodeButton.setName("&3&lGameMode");
+            gamemodeButton.addLoreLine("&7Click to Toggle between");
+            gamemodeButton.addLoreLine("&7&3Creative &7and &4Survival&7.");
+            gamemodeButton.addLoreLine("&7Middle click for more options.");
+        }
+        
+        inv.addButton(inv.getNextSlot(), new BInventoryButton(gamemodeButton) {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                if(event.getClick().equals(ClickType.MIDDLE)) {
+                    // Open the options menu.
+                    GameModeGUI.getInstance().viewGUI(player);
+                    return;
+                } else {
+                    // Run the toggle command
+                    
+                    if(player.getGameMode().equals(GameMode.SURVIVAL) || player.getGameMode().equals(GameMode.ADVENTURE)) {
+                        player.performCommand("gmc");
+                    } else {
+                        player.performCommand("gms");
+                    }
+                }
+                
+                return;
+            }
+            
+        });
+        
+        
+        /**
+         * Vanish
+         */
+        ItemBuilder vanishButton = new ItemBuilder(Material.GLASS_PANE);
+        boolean isVanished = false;
+        for (MetadataValue meta : player.getMetadata("vanished")) {
+            isVanished = meta.asBoolean();
+        }
+        
+        if (isVanished) {
+            // They're vanished.
+            vanishButton.setDyeColor(DyeColor.GREEN);
+            vanishButton.setName("&5&lVanish");
+            vanishButton.addLoreLine("&7Click to toggle vanish off,");
+            vanishButton.addLoreLine("&7or middle click for more options.");
+        } else {
+            // Not vanished.
+            vanishButton.setDyeColor(DyeColor.RED);
+            vanishButton.setName("&5&lVanish");
+            vanishButton.addLoreLine("&7Click to toggle vanish on,");
+            vanishButton.addLoreLine("&7or middle click for more options");
+        }
+        
+        inv.addButton(inv.getNextSlot(), new BInventoryButton(vanishButton) {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                if(event.getClick().equals(ClickType.MIDDLE)) {
+                    // Open the inventory
+                    VanishGUI.getInstance().viewGUI(player);
+                    return;
+                } else {
+                    // Toggle Vanish
+                    player.performCommand("sv -s");
+                    return;
+                }
+            }
+            
+        });
+        
+        
+        /**
+         * Server
+         */
+        ItemBuilder serverButton = new ItemBuilder(Material.BEDROCK, 1);
+        serverButton.setName("&f&lSERVER");
+        serverButton.setLore("&4Restricted access only.");
+        
+        inv.addButton(inv.getNextSlot(), new BInventoryButton(serverButton) {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                ServerGUI.getInstance().viewGUI(player);
+                return;
+            }
+            
+        });
+        
         
         
         // Open the inventory
@@ -154,9 +326,7 @@ public class AdminGUI implements GUI {
      */
     public void openGUI(Player player, Player target) {
         
-        // Ope
+        // Open the GUI Already focused on a player.
         
     }
-
-
 }

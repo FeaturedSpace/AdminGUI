@@ -1,8 +1,11 @@
 package net.fathomtech.plugins.AdminGUI.GUI;
 
+import java.util.ArrayList;
+
 import net.fathomtech.plugins.AdminGUI.Main;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -10,6 +13,10 @@ import com.Ben12345rocks.AdvancedCore.Util.Inventory.BInventory;
 import com.Ben12345rocks.AdvancedCore.Util.Inventory.BInventory.ClickEvent;
 import com.Ben12345rocks.AdvancedCore.Util.Inventory.BInventoryButton;
 import com.Ben12345rocks.AdvancedCore.Util.Item.ItemBuilder;
+import com.Ben12345rocks.AdvancedCore.Util.Misc.ArrayUtils;
+import com.Ben12345rocks.AdvancedCore.Util.Misc.PlayerUtils;
+import com.Ben12345rocks.AdvancedCore.Util.ValueRequest.ValueRequest;
+import com.Ben12345rocks.AdvancedCore.Util.ValueRequest.Listeners.StringListener;
 
 public class UserGUI implements GUI {
     
@@ -79,11 +86,47 @@ public class UserGUI implements GUI {
         valueSelect.addLoreLine("&7their name.");
         
         inv.addButton(inv.getNextSlot(), new BInventoryButton(valueSelect) {
-
+            
             @Override
             public void onClick(ClickEvent event) {
+                if(!player.hasPermission("AdminGUI.NameSelect")) {
+                    player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "Insufficient permissions.");
+                    return;
+                }
                 
+                ArrayList<String> players = new ArrayList<String>();
+                ArrayList<String> restrictedPlayers = new ArrayList<String>();
                 
+                for(Player otherPlayer : Bukkit.getOnlinePlayers()) {
+                    if(otherPlayer.hasPermission("AdminGUI.Owner") && !(player.hasPermission("AdminGUI.Owner"))) {
+                        // Don't add
+                        restrictedPlayers.add(otherPlayer.getName());
+                    } else if(otherPlayer.hasPermission("AdminGUI.Admin") && !(player.hasPermission("AdminGUI.Admin"))) {
+                        // Don't add
+                        restrictedPlayers.add(otherPlayer.getName());
+                    } else if(otherPlayer.hasPermission("AdminGUI.Mod") && !(player.hasPermission("AdminGUI.Mod"))) {
+                        // Don't add
+                        restrictedPlayers.add(otherPlayer.getName());
+                    } else {
+                        
+                        // Add the player to the accessible list
+                        players.add(otherPlayer.getName());
+                    }
+                }
+                
+                new ValueRequest().requestString(player, "", ArrayUtils.getInstance().convert(players), true,
+                                new StringListener() {
+
+                                    @Override
+                                    public void onInput(Player player, String value) {
+                                        setCurrentPlayer(player, value);
+                                        
+                                        Player targetPlayer = Bukkit.getServer().getPlayer(value);
+                                        
+                                        toGUI.openGUI(player, targetPlayer);
+                                    }
+                                    
+                                });
                 
             }
             
@@ -178,5 +221,18 @@ public class UserGUI implements GUI {
         // On their next click, see if they clicked a player
         
     }
+    
+    /**
+	 * Sets the current player.
+	 *
+	 * @param player
+	 *            the player
+	 * @param playerName
+	 *            the player name
+	 */
+	private void setCurrentPlayer(Player player, String playerName) {
+		PlayerUtils.getInstance().setPlayerMeta(player, "UserGUI", playerName);
+    }
+    
     
 }
