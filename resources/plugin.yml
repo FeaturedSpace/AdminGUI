@@ -1,0 +1,7 @@
+name: AdminGUI
+main: net.fathomtech.plugins.AdminGUI.Main
+version: 1.0
+author: FeaturedSpace
+description: A useful plugin used to rank up players, give them ranks, etc.
+
+commands:
